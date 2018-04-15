@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import signal
 import requests
 import gi
