@@ -24,39 +24,60 @@ class Indicator():
         self.indicator.set_menu(self.build_menu())
         self.indicator.set_label('₹0', APPINDICATOR_ID)
         # Thread to update the price on the label
-        self.update = Thread(target=self.get_current_price)
+        self.update = Thread(target=self.get_current_price_koinex)
         self.update.setDaemon(True)
         self.update.start()
 
     def build_menu(self):
-        menu = gtk.Menu()
-        item_quit = gtk.MenuItem('Quit')
-        item_quit.connect('activate', quit)
-        menu.append(item_quit)
-        menu.show_all()
-        return menu
+        self.menu = gtk.Menu()
+        menu_item_price_USD = gtk.MenuItem(self.get_current_price_coinbase())
+        menu_item_quit = gtk.MenuItem('Quit')
+        menu_item_quit.connect('activate', quit)
+        self.menu.append(menu_item_price_USD)
+        self.menu.append(menu_item_quit)
+        self.menu.show_all()
+        return self.menu
 
-    def get_current_price(self):
+    def get_current_price_koinex(self):
         while True:
-            reply = requests.get('https://koinex.in/api/ticker')
-            if reply.status_code != 200:
-                raise Exception('Cannot connect to Koinex Ticker API \- Check internet connection')
+            # API requests to Koinex
+            reply_from_koinex = requests.get('https://koinex.in/api/ticker')
+
+            # Check for successfull reply
+            if (reply_from_koinex.status_code != 200):
+                raise Exception('Cannot connect to Koinex Ticker API')
             else:
-                price = ('₹' + reply.json().get("prices").get("ETH"))
+                price_INR = ('₹' + reply_from_koinex.json().get("prices").get("ETH"))
                 GObject.idle_add(
                         self.indicator.set_label,
-                        price, APPINDICATOR_ID,
+                        price_INR, APPINDICATOR_ID,
                         priority=GObject.PRIORITY_DEFAULT
                         )
+            # Contains refresh for Coinbase ticker API
+            self.build_menu()
             time.sleep(60)
+
+    def get_current_price_coinbase(self):
+        # API requests to Coinbase
+        reply_from_coinbase = requests.get('\
+            https://api.coinbase.com/v2/prices/ETH-USD/spot')
+
+        # Check for successfull reply
+        if (reply_from_coinbase.status_code != 200):
+            raise Exception('Cannot connect to Coinbase Ticker API')
+        else:
+            price_USD = ('$' + reply_from_coinbase.json().get("data").get("amount"))
+            return price_USD
 
     def quit(source):
         gtk.main_quit()
 
 
 Indicator()
+
 # To start the indicator
 GObject.threads_init()
-# ctrl+c exit
+
+# Ctrl+c exit
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 gtk.main()
