@@ -54,7 +54,7 @@ class Indicator():
                         priority=GObject.PRIORITY_DEFAULT
                         )
             # Contains refresh for Coinbase ticker API
-            self.build_menu()
+            self.indicator.set_menu(self.build_menu())
             time.sleep(60)
 
     def get_current_price_coinbase(self):
