@@ -30,10 +30,8 @@ class Indicator():
 
     def build_menu(self):
         self.menu = gtk.Menu()
-        menu_item_price_USD = gtk.MenuItem(self.get_current_price_coinbase())
         menu_item_quit = gtk.MenuItem('Quit')
         menu_item_quit.connect('activate', quit)
-        self.menu.append(menu_item_price_USD)
         self.menu.append(menu_item_quit)
         self.menu.show_all()
         return self.menu
@@ -48,13 +46,14 @@ class Indicator():
                 raise Exception('Cannot connect to Koinex Ticker API')
             else:
                 price_INR = ('₹' + reply_from_koinex.json().get("prices").get("ETH"))
+                price_USD = self.get_current_price_coinbase()
+                price = price_INR + ' | ' + price_USD
                 GObject.idle_add(
                         self.indicator.set_label,
-                        price_INR, APPINDICATOR_ID,
+                        price, APPINDICATOR_ID,
                         priority=GObject.PRIORITY_DEFAULT
                         )
-            # Contains refresh for Coinbase ticker API
-            self.indicator.set_menu(self.build_menu())
+
             time.sleep(60)
 
     def get_current_price_coinbase(self):
