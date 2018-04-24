@@ -18,11 +18,11 @@ APPINDICATOR_ID = 'koinex_indicator'
 class Indicator():
     def __init__(self):
         # Indicator logic
-        iconpath = os.getcwd() + '/ethlogo.png'
+        # iconpath = os.getcwd() + '/ethlogo.svg'
         self.indicator = appindicator.Indicator.new(APPINDICATOR_ID, iconpath, appindicator.IndicatorCategory.APPLICATION_STATUS)
         self.indicator.set_status(appindicator.IndicatorStatus.ACTIVE)
         self.indicator.set_menu(self.build_menu())
-        self.indicator.set_label('₹0', APPINDICATOR_ID)
+        self.indicator.set_label('Rs 0', APPINDICATOR_ID)
         # Thread to update the price on the label
         self.update = Thread(target=self.get_current_price_koinex)
         self.update.setDaemon(True)
@@ -45,7 +45,7 @@ class Indicator():
             if (reply_from_koinex.status_code != 200):
                 raise Exception('Cannot connect to Koinex Ticker API')
             else:
-                price_INR = ('₹' + reply_from_koinex.json().get("prices").get("ETH"))
+                price_INR = ('Rs ' + reply_from_koinex.json().get("prices").get("ETH"))
                 price_USD = self.get_current_price_coinbase()
                 price = price_INR + ' | ' + price_USD
                 GObject.idle_add(
