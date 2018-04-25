@@ -18,7 +18,7 @@ APPINDICATOR_ID = 'koinex_indicator'
 class Indicator():
     def __init__(self):
         # Indicator logic
-        # iconpath = os.getcwd() + '/ethlogo.svg'
+        iconpath = os.getcwd() + '/ethlogo.svg'
         self.indicator = appindicator.Indicator.new(APPINDICATOR_ID, iconpath, appindicator.IndicatorCategory.APPLICATION_STATUS)
         self.indicator.set_status(appindicator.IndicatorStatus.ACTIVE)
         self.indicator.set_menu(self.build_menu())
