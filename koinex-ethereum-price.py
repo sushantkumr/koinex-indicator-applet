@@ -45,7 +45,7 @@ class Indicator():
             if (reply_from_koinex.status_code != 200):
                 raise Exception('Cannot connect to Koinex Ticker API')
             else:
-                price_INR = ('Rs ' + reply_from_koinex.json().get("prices").get("ETH"))
+                price_INR = ('Rs ' + reply_from_koinex.json().get("prices").get('inr').get('ETH'))
                 price_USD = self.get_current_price_coinbase()
                 price = price_INR + ' | ' + price_USD
                 GObject.idle_add(
