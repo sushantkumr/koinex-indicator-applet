@@ -25,7 +25,7 @@ class Indicator():
         self.indicator.set_label('Rs 0', APPINDICATOR_ID)
         # Thread to update the price on the label
         self.update = Thread(target=self.get_current_price_koinex)
-        self.update.setDaemon(True)
+        # self.update.setDaemon(True)
         self.update.start()
 
     def build_menu(self):
@@ -43,7 +43,7 @@ class Indicator():
 
             # Check for successfull reply
             if (reply_from_koinex.status_code != 200):
-                raise Exception('Cannot connect to Koinex Ticker API')
+                print('Cannot connect to Koinex Ticker API')
             else:
                 price_INR = ('Rs ' + reply_from_koinex.json().get("prices").get('inr').get('ETH'))
                 price_USD = self.get_current_price_coinbase()
@@ -63,7 +63,7 @@ class Indicator():
 
         # Check for successfull reply
         if (reply_from_coinbase.status_code != 200):
-            raise Exception('Cannot connect to Coinbase Ticker API')
+            print('Cannot connect to Coinbase Ticker API')
         else:
             price_USD = ('$' + reply_from_coinbase.json().get("data").get("amount"))
             return price_USD
