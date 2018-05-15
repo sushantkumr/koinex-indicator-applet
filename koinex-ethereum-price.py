@@ -22,7 +22,7 @@ class Indicator():
         self.indicator = appindicator.Indicator.new(APPINDICATOR_ID, iconpath, appindicator.IndicatorCategory.APPLICATION_STATUS)
         self.indicator.set_status(appindicator.IndicatorStatus.ACTIVE)
         self.indicator.set_menu(self.build_menu())
-        self.indicator.set_label('Rs 0', APPINDICATOR_ID)
+        self.indicator.set_label('₹ 0 | $ 0', APPINDICATOR_ID)
         # Thread to update the price on the label
         self.update = Thread(target=self.get_current_price_koinex)
         # self.update.setDaemon(True)
@@ -39,13 +39,10 @@ class Indicator():
     def get_current_price_koinex(self):
         while True:
             # API requests to Koinex
-            reply_from_koinex = requests.get('https://koinex.in/api/ticker')
+            try:
+                reply_from_koinex = requests.get('https://koinex.in/api/ticker')
 
-            # Check for successfull reply
-            if (reply_from_koinex.status_code != 200):
-                print('Cannot connect to Koinex Ticker API')
-            else:
-                price_INR = ('Rs ' + reply_from_koinex.json().get("prices").get('inr').get('ETH'))
+                price_INR = ('₹ ' + reply_from_koinex.json().get("prices").get('inr').get('ETH'))
                 price_USD = self.get_current_price_coinbase()
                 price = price_INR + ' | ' + price_USD
                 GObject.idle_add(
@@ -53,20 +50,24 @@ class Indicator():
                         price, APPINDICATOR_ID,
                         priority=GObject.PRIORITY_DEFAULT
                         )
-
+            except:
+                pass
             time.sleep(60)
 
     def get_current_price_coinbase(self):
         # API requests to Coinbase
-        reply_from_coinbase = requests.get('\
+        try:
+            reply_from_coinbase = requests.get('\
             https://api.coinbase.com/v2/prices/ETH-USD/spot')
-
-        # Check for successfull reply
-        if (reply_from_coinbase.status_code != 200):
-            print('Cannot connect to Coinbase Ticker API')
-        else:
             price_USD = ('$' + reply_from_coinbase.json().get("data").get("amount"))
             return price_USD
+
+        except:
+            pass
+
+        # # Check for successfull reply
+        # except:
+        #     print('Cannot connect to Coinbase Ticker API')
 
     def quit(source):
         gtk.main_quit()
